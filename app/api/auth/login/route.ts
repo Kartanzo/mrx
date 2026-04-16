@@ -48,7 +48,8 @@ export async function POST(request: NextRequest) {
     });
 
     return response;
-  } catch {
-    return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
+  } catch (err) {
+    console.error('[login error]', err);
+    return NextResponse.json({ error: 'Erro interno', detail: String(err) }, { status: 500 });
   }
 }

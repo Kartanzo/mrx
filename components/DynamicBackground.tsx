@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 
 export interface Scene {
   id: string;
@@ -106,25 +106,31 @@ interface Props {
 
 export default function DynamicBackground({ onSceneChange }: Props) {
   const [currentIndex, setCurrentIndex] = useState(() => getSceneIndexByBrazilTime());
-  const [nextIndex, setNextIndex] = useState(() => (getSceneIndexByBrazilTime() + 1) % SCENES.length);
+  const [nextIndex, setNextIndex] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
 
-  const advance = useCallback(() => {
-    const next = (currentIndex + 1) % SCENES.length;
-    setNextIndex(next);
-    setTransitioning(true);
-    setTimeout(() => {
-      setCurrentIndex(next);
-      setTransitioning(false);
-      onSceneChange(SCENES[next]);
-    }, 1500);
-  }, [currentIndex, onSceneChange]);
-
+  // Atualiza o tema quando o horário muda (verifica a cada minuto)
   useEffect(() => {
-    onSceneChange(SCENES[getSceneIndexByBrazilTime()]);
-    const interval = setInterval(advance, 8000);
+    const applyTime = () => {
+      const idx = getSceneIndexByBrazilTime();
+      if (idx !== currentIndex) {
+        setNextIndex(idx);
+        setTransitioning(true);
+        setTimeout(() => {
+          setCurrentIndex(idx);
+          setTransitioning(false);
+          onSceneChange(SCENES[idx]);
+        }, 1500);
+      } else {
+        onSceneChange(SCENES[idx]);
+      }
+    };
+
+    applyTime();
+    const interval = setInterval(applyTime, 60_000);
     return () => clearInterval(interval);
-  }, [advance, onSceneChange]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden">
@@ -144,15 +150,6 @@ export default function DynamicBackground({ onSceneChange }: Props) {
         <SceneElements id={SCENES[nextIndex].id} />
       </div>
 
-      {/* Indicadores */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-        {SCENES.map((s, i) => (
-          <div
-            key={s.id}
-            className={`h-1.5 rounded-full transition-all duration-500 ${i === currentIndex ? 'w-6 bg-white' : 'w-1.5 bg-white/40'}`}
-          />
-        ))}
-      </div>
     </div>
   );
 }
