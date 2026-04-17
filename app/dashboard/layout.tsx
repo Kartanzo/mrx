@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { verifyToken } from '@/lib/auth';
 import Sidebar from '@/components/Sidebar';
+import DashboardContent from '@/components/DashboardContent';
 
 export default async function DashboardLayout({
   children,
@@ -21,15 +22,7 @@ export default async function DashboardLayout({
         userEmail={payload.email}
         userPerfil={payload.perfil}
       />
-
-      {/* Conteúdo principal */}
-      <div className="md:pl-60">
-        {/* Espaço para header mobile */}
-        <div className="md:hidden h-14" />
-        <main className="p-4 md:p-6 min-h-screen">
-          {children}
-        </main>
-      </div>
+      <DashboardContent>{children}</DashboardContent>
     </div>
   );
 }
