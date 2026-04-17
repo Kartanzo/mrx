@@ -1,8 +1,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { verifyToken } from '@/lib/auth';
-import Sidebar from '@/components/Sidebar';
-import DashboardContent from '@/components/DashboardContent';
+import DashboardShell from '@/components/DashboardShell';
 
 export default async function DashboardLayout({
   children,
@@ -17,12 +16,13 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-[#0f1117]">
-      <Sidebar
+      <DashboardShell
         userName={payload.nome}
         userEmail={payload.email}
         userPerfil={payload.perfil}
-      />
-      <DashboardContent>{children}</DashboardContent>
+      >
+        {children}
+      </DashboardShell>
     </div>
   );
 }

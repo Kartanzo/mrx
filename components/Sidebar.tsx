@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, createContext } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -14,15 +14,18 @@ const navItems: NavItem[] = [
   { href: '/dashboard/usuarios', label: 'Usuários', icon: <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
 ];
 
-export const SidebarContext = createContext({ collapsed: false });
+interface Props {
+  userName: string;
+  userEmail: string;
+  userPerfil: string;
+  collapsed: boolean;
+  onCollapse: (v: boolean) => void;
+}
 
-interface Props { userName: string; userEmail: string; userPerfil: string; }
-
-export default function Sidebar({ userName, userPerfil }: Props) {
+export default function Sidebar({ userName, userPerfil, collapsed, onCollapse }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
@@ -40,28 +43,21 @@ export default function Sidebar({ userName, userPerfil }: Props) {
   }
 
   return (
-    <SidebarContext.Provider value={{ collapsed }}>
-      {/* ═══════ DESKTOP ═══════ */}
-
-      {/* Sidebar desktop */}
+    <>
+      {/* ═══ DESKTOP ═══ */}
       <aside className={`hidden md:flex md:flex-col md:fixed md:inset-y-0 z-30 bg-[#0a0c14] border-r border-white/5 transition-all duration-300 ease-out ${collapsed ? 'md:w-0 md:overflow-hidden md:border-r-0' : 'md:w-60'}`}>
         <div className="w-60 flex flex-col h-full">
-          {/* Logo + Botão RECOLHER no topo */}
           <div className="px-3 py-3 border-b border-white/5 flex items-center justify-between gap-2">
-            <div className="bg-white rounded-lg px-3 py-2 inline-block">
+            <div className="bg-white rounded-lg px-3 py-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo.jpeg" alt="MRX" style={{ height: 32, width: 'auto', display: 'block' }} />
             </div>
-            <button
-              onClick={() => setCollapsed(true)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#1E7BC4]/15 border border-[#1E7BC4]/30 text-[#1E7BC4] text-xs font-semibold hover:bg-[#1E7BC4]/25 transition-all"
-            >
+            <button onClick={() => onCollapse(true)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#1E7BC4]/15 border border-[#1E7BC4]/30 text-[#1E7BC4] text-xs font-semibold hover:bg-[#1E7BC4]/25 transition-all">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 19l-7-7 7-7" /></svg>
               Recolher
             </button>
           </div>
-
-          {/* Nav */}
           <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
             {navItems.map(item => {
               const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
@@ -73,8 +69,6 @@ export default function Sidebar({ userName, userPerfil }: Props) {
               );
             })}
           </nav>
-
-          {/* Perfil */}
           <div className="p-3 border-t border-white/5">
             <div className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-white/5 transition-all">
               <div className="w-8 h-8 rounded-full bg-[#1E7BC4] flex items-center justify-center text-white font-bold text-sm shrink-0">{userName.charAt(0).toUpperCase()}</div>
@@ -90,43 +84,33 @@ export default function Sidebar({ userName, userPerfil }: Props) {
         </div>
       </aside>
 
-      {/* Botão flutuante para REABRIR — aparece quando recolhido */}
+      {/* Botão reabrir desktop */}
       {collapsed && (
-        <button
-          onClick={() => setCollapsed(false)}
-          className="hidden md:flex fixed top-4 left-4 z-40 items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1E7BC4] text-white text-sm font-semibold shadow-xl shadow-[#1E7BC4]/30 hover:bg-[#1a6aaa] active:scale-95 transition-all"
-        >
+        <button onClick={() => onCollapse(false)}
+          className="hidden md:flex fixed top-4 left-4 z-40 items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1E7BC4] text-white text-sm font-semibold shadow-xl shadow-[#1E7BC4]/30 hover:bg-[#1a6aaa] active:scale-95 transition-all">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" /></svg>
           Menu
         </button>
       )}
 
-      {/* ═══════ MOBILE ═══════ */}
-
-      {/* Header fixo */}
+      {/* ═══ MOBILE ═══ */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#0a0c14] border-b border-white/5 px-4 py-2.5 flex items-center justify-between">
         <div className="bg-white rounded-lg px-2 py-1">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.jpeg" alt="MRX" style={{ height: 28, width: 'auto', display: 'block' }} />
         </div>
-        <button
-          onClick={() => setMobileOpen(v => !v)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1E7BC4] text-white text-sm font-semibold shadow-lg shadow-[#1E7BC4]/30 active:scale-95 transition-transform"
-        >
+        <button onClick={() => setMobileOpen(v => !v)}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1E7BC4] text-white text-sm font-semibold shadow-lg shadow-[#1E7BC4]/30 active:scale-95 transition-transform">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" /></svg>
           Menu
         </button>
       </div>
 
-      {/* Overlay */}
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
       )}
 
-      {/* Drawer */}
-      <aside
-        className={`md:hidden fixed top-0 left-0 bottom-0 z-[60] w-72 max-w-[85vw] bg-[#0a0c14] border-r border-white/5 shadow-2xl transition-transform duration-300 ease-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
-      >
+      <aside className={`md:hidden fixed top-0 left-0 bottom-0 z-[60] w-72 max-w-[85vw] bg-[#0a0c14] border-r border-white/5 shadow-2xl transition-transform duration-300 ease-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
           <div className="px-4 py-4 border-b border-white/5 flex items-center justify-between">
             <div className="bg-white rounded-lg px-3 py-2">
@@ -139,7 +123,6 @@ export default function Sidebar({ userName, userPerfil }: Props) {
               Fechar
             </button>
           </div>
-
           <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
             {navItems.map(item => {
               const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
@@ -151,7 +134,6 @@ export default function Sidebar({ userName, userPerfil }: Props) {
               );
             })}
           </nav>
-
           <div className="p-3 border-t border-white/5">
             <div className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/5 transition-all">
               <div className="w-10 h-10 rounded-full bg-[#1E7BC4] flex items-center justify-center text-white font-bold text-base shrink-0">{userName.charAt(0).toUpperCase()}</div>
@@ -166,6 +148,6 @@ export default function Sidebar({ userName, userPerfil }: Props) {
           </div>
         </div>
       </aside>
-    </SidebarContext.Provider>
+    </>
   );
 }
