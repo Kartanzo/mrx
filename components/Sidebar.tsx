@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, createContext, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -14,52 +14,29 @@ const navItems: NavItem[] = [
   {
     href: '/dashboard',
     label: 'Dashboard',
-    icon: (
-      <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-      </svg>
-    ),
+    icon: <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>,
   },
   {
     href: '/dashboard/transacoes',
     label: 'Transações',
-    icon: (
-      <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-      </svg>
-    ),
+    icon: <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>,
   },
   {
     href: '/dashboard/gestao',
     label: 'Gestão',
-    icon: (
-      <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-      </svg>
-    ),
+    icon: <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>,
   },
   {
     href: '/dashboard/acesso',
     label: 'Acesso Bot',
-    icon: (
-      <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-      </svg>
-    ),
+    icon: <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>,
   },
   {
     href: '/dashboard/usuarios',
     label: 'Usuários',
-    icon: (
-      <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
+    icon: <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
   },
 ];
-
-// Context para o layout saber a largura do sidebar
-export const SidebarContext = createContext({ collapsed: false });
 
 interface Props {
   userName: string;
@@ -71,10 +48,9 @@ export default function Sidebar({ userName, userEmail, userPerfil }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
-  // Fecha mobile ao navegar
+  // Fecha ao navegar
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   async function handleLogout() {
@@ -84,105 +60,59 @@ export default function Sidebar({ userName, userEmail, userPerfil }: Props) {
     router.refresh();
   }
 
-  const toggleIcon = (
-    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d={collapsed ? "M13 5l7 7-7 7M5 5l7 7-7 7" : "M11 19l-7-7 7-7M19 19l-7-7 7-7"} />
-    </svg>
-  );
-
-  const navLink = (item: NavItem) => {
-    const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
-    return (
-      <Link
-        key={item.href}
-        href={item.href}
-        title={collapsed ? item.label : undefined}
-        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-          collapsed ? 'justify-center' : ''
-        } ${
-          active
-            ? 'bg-[#1E7BC4] text-white shadow-lg shadow-[#1E7BC4]/30'
-            : 'text-white/60 hover:text-white hover:bg-white/5'
-        }`}
-      >
-        {item.icon}
-        {!collapsed && <span className="truncate">{item.label}</span>}
-      </Link>
-    );
-  };
-
   return (
-    <SidebarContext.Provider value={{ collapsed }}>
-      {/* ── Desktop Sidebar ── */}
-      <aside className={`hidden md:flex md:flex-col md:fixed md:inset-y-0 z-30 bg-[#0a0c14] border-r border-white/5 transition-all duration-300 ${collapsed ? 'md:w-16' : 'md:w-60'}`}>
-        {/* Logo + collapse toggle */}
-        <div className="px-3 py-4 border-b border-white/5 flex items-center justify-between">
-          {!collapsed && (
-            <div className="bg-white rounded-lg px-3 py-2 inline-block">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.jpeg" alt="MRX" style={{ height: 32, width: 'auto', display: 'block' }} />
-            </div>
-          )}
-          <button
-            onClick={() => setCollapsed(v => !v)}
-            className="p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-all mx-auto"
-            title={collapsed ? 'Expandir menu' : 'Recolher menu'}
-          >
-            {toggleIcon}
-          </button>
+    <>
+      {/* ── Desktop Sidebar (fixo, sempre visível) ── */}
+      <aside className="hidden md:flex md:w-60 md:flex-col md:fixed md:inset-y-0 z-30 bg-[#0a0c14] border-r border-white/5">
+        <div className="px-4 py-4 border-b border-white/5">
+          <div className="bg-white rounded-lg px-3 py-2 inline-block">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.jpeg" alt="MRX" style={{ height: 32, width: 'auto', display: 'block' }} />
+          </div>
         </div>
-
-        {/* Nav */}
-        <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-          {navItems.map(navLink)}
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+          {navItems.map(item => {
+            const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
+            return (
+              <Link key={item.href} href={item.href}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${active ? 'bg-[#1E7BC4] text-white shadow-lg shadow-[#1E7BC4]/30' : 'text-white/60 hover:text-white hover:bg-white/5'}`}>
+                {item.icon}{item.label}
+              </Link>
+            );
+          })}
         </nav>
-
-        {/* Perfil */}
-        <div className="p-2 border-t border-white/5">
-          <div className={`flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-white/5 transition-all ${collapsed ? 'justify-center' : ''}`}>
-            <div className="w-8 h-8 rounded-full bg-[#1E7BC4] flex items-center justify-center text-white font-bold text-sm shrink-0">
-              {userName.charAt(0).toUpperCase()}
+        <div className="p-3 border-t border-white/5">
+          <div className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-white/5 transition-all">
+            <div className="w-8 h-8 rounded-full bg-[#1E7BC4] flex items-center justify-center text-white font-bold text-sm shrink-0">{userName.charAt(0).toUpperCase()}</div>
+            <div className="flex-1 min-w-0">
+              <p className="text-white text-sm font-medium truncate">{userName}</p>
+              <p className="text-white/40 text-xs truncate capitalize">{userPerfil}</p>
             </div>
-            {!collapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-white text-sm font-medium truncate">{userName}</p>
-                <p className="text-white/40 text-xs truncate capitalize">{userPerfil}</p>
-              </div>
-            )}
-            <button
-              onClick={handleLogout}
-              disabled={loggingOut}
-              className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-all shrink-0"
-              title="Sair"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
+            <button onClick={handleLogout} disabled={loggingOut} className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-all" title="Sair">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
             </button>
           </div>
         </div>
       </aside>
 
-      {/* ── Mobile header ── */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[#0a0c14] border-b border-white/5 px-4 py-3 flex items-center justify-between">
-        <div className="bg-white rounded-lg px-2 py-1 inline-block">
+      {/* ── Mobile: header fixo com hamburger destacado ── */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[#0a0c14] border-b border-white/5 px-4 py-2.5 flex items-center justify-between">
+        <div className="bg-white rounded-lg px-2 py-1">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.jpeg" alt="MRX" style={{ height: 28, width: 'auto', display: 'block' }} />
         </div>
+
+        {/* Botão hamburger — destaque azul */}
         <button
           onClick={() => setMobileOpen(v => !v)}
-          className="p-2.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-all"
+          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#1E7BC4] text-white text-sm font-medium shadow-lg shadow-[#1E7BC4]/20 active:scale-95 transition-all"
         >
           {mobileOpen ? (
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
           ) : (
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
           )}
+          Menu
         </button>
       </div>
 
@@ -191,67 +121,48 @@ export default function Sidebar({ userName, userEmail, userPerfil }: Props) {
         <div className="md:hidden fixed inset-0 z-30 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
       )}
 
-      {/* Mobile drawer */}
-      <aside className={`md:hidden fixed top-0 left-0 bottom-0 z-40 w-64 max-w-[80vw] bg-[#0a0c14] border-r border-white/5 transition-transform duration-300 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      {/* ── Mobile drawer ── */}
+      <aside className={`md:hidden fixed top-0 left-0 bottom-0 z-40 w-72 max-w-[85vw] bg-[#0a0c14] border-r border-white/5 transition-transform duration-300 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
-          {/* Logo */}
+          {/* Header */}
           <div className="px-4 py-4 border-b border-white/5 flex items-center justify-between">
-            <div className="bg-white rounded-lg px-3 py-2 inline-block">
+            <div className="bg-white rounded-lg px-3 py-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo.jpeg" alt="MRX" style={{ height: 32, width: 'auto', display: 'block' }} />
             </div>
-            <button onClick={() => setMobileOpen(false)} className="p-2 rounded-lg text-white/40 hover:text-white">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+            <button onClick={() => setMobileOpen(false)} className="p-2.5 rounded-xl text-white/40 hover:text-white hover:bg-white/10 transition-all">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
 
-          {/* Nav — fonte maior no mobile */}
+          {/* Nav — fonte grande, touch targets grandes */}
           <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
             {navItems.map(item => {
               const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium transition-all ${
-                    active
-                      ? 'bg-[#1E7BC4] text-white shadow-lg shadow-[#1E7BC4]/30'
-                      : 'text-white/60 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  {item.icon}
-                  {item.label}
+                <Link key={item.href} href={item.href}
+                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-medium transition-all ${active ? 'bg-[#1E7BC4] text-white shadow-lg shadow-[#1E7BC4]/30' : 'text-white/60 hover:text-white hover:bg-white/5'}`}>
+                  {item.icon}{item.label}
                 </Link>
               );
             })}
           </nav>
 
-          {/* Perfil */}
+          {/* Perfil — grande */}
           <div className="p-3 border-t border-white/5">
             <div className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/5 transition-all">
-              <div className="w-10 h-10 rounded-full bg-[#1E7BC4] flex items-center justify-center text-white font-bold text-base shrink-0">
-                {userName.charAt(0).toUpperCase()}
-              </div>
+              <div className="w-10 h-10 rounded-full bg-[#1E7BC4] flex items-center justify-center text-white font-bold text-base shrink-0">{userName.charAt(0).toUpperCase()}</div>
               <div className="flex-1 min-w-0">
                 <p className="text-white text-base font-medium truncate">{userName}</p>
                 <p className="text-white/40 text-sm truncate capitalize">{userPerfil}</p>
               </div>
-              <button
-                onClick={handleLogout}
-                disabled={loggingOut}
-                className="p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-all"
-                title="Sair"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
+              <button onClick={handleLogout} disabled={loggingOut} className="p-2.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-all" title="Sair">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
               </button>
             </div>
           </div>
         </div>
       </aside>
-    </SidebarContext.Provider>
+    </>
   );
 }
