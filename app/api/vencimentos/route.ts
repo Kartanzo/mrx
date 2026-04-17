@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
 
+const HOJE = "(NOW() AT TIME ZONE 'America/Sao_Paulo')::date";
+const VENC = "(m.data_vencimento AT TIME ZONE 'America/Sao_Paulo')::date";
+
 export async function GET(req: NextRequest) {
   try {
-    const periodo = req.nextUrl.searchParams.get('periodo') ?? 'semana'; // semana | hoje | atrasados | todos
+    const periodo = req.nextUrl.searchParams.get('periodo') ?? 'semana';
     const status = req.nextUrl.searchParams.get('status') ?? '';
     const q = req.nextUrl.searchParams.get('q') ?? '';
 
@@ -11,11 +14,11 @@ export async function GET(req: NextRequest) {
     const params: string[] = [];
 
     if (periodo === 'hoje') {
-      conditions.push("DATE(m.data_vencimento) = CURRENT_DATE");
+      conditions.push(`${VENC} = ${HOJE}`);
     } else if (periodo === 'semana') {
-      conditions.push("m.data_vencimento >= CURRENT_DATE AND m.data_vencimento < CURRENT_DATE + INTERVAL '7 days'");
+      conditions.push(`${VENC} >= ${HOJE} - INTERVAL '1 day' AND ${VENC} < ${HOJE} + INTERVAL '7 days'`);
     } else if (periodo === 'atrasados') {
-      conditions.push("m.data_vencimento < CURRENT_DATE AND m.status = 'pendente'");
+      conditions.push(`${VENC} < ${HOJE} AND m.status = 'pendente'`);
     }
 
     if (status) {
@@ -33,8 +36,8 @@ export async function GET(req: NextRequest) {
     const { rows } = await pool.query(
       `SELECT m.*,
               CASE
-                WHEN m.data_vencimento < CURRENT_DATE AND m.status = 'pendente' THEN 'atrasado'
-                WHEN DATE(m.data_vencimento) = CURRENT_DATE THEN 'hoje'
+                WHEN ${VENC} < ${HOJE} AND m.status = 'pendente' THEN 'atrasado'
+                WHEN ${VENC} = ${HOJE} THEN 'hoje'
                 ELSE 'futuro'
               END AS urgencia
        FROM mrx.mensalidades m
@@ -43,16 +46,18 @@ export async function GET(req: NextRequest) {
       params
     );
 
-    // Stats
+    const V = "(data_vencimento AT TIME ZONE 'America/Sao_Paulo')::date";
+    const H = "(NOW() AT TIME ZONE 'America/Sao_Paulo')::date";
+
     const { rows: stats } = await pool.query(`
       SELECT
-        COUNT(*) FILTER (WHERE data_vencimento >= CURRENT_DATE AND data_vencimento < CURRENT_DATE + INTERVAL '7 days')::int AS semana,
-        COUNT(*) FILTER (WHERE DATE(data_vencimento) = CURRENT_DATE)::int AS hoje,
-        COUNT(*) FILTER (WHERE data_vencimento < CURRENT_DATE AND status = 'pendente')::int AS atrasados,
+        COUNT(*) FILTER (WHERE ${V} >= ${H} AND ${V} < ${H} + INTERVAL '7 days')::int AS semana,
+        COUNT(*) FILTER (WHERE ${V} = ${H})::int AS hoje,
+        COUNT(*) FILTER (WHERE ${V} < ${H} AND status = 'pendente')::int AS atrasados,
         COUNT(*) FILTER (WHERE status = 'pendente')::int AS pendentes,
         COUNT(*) FILTER (WHERE status = 'pago')::int AS pagos,
-        COALESCE(SUM(valor) FILTER (WHERE data_vencimento >= CURRENT_DATE AND data_vencimento < CURRENT_DATE + INTERVAL '7 days' AND status = 'pendente'), 0)::numeric AS valor_semana,
-        COALESCE(SUM(valor) FILTER (WHERE data_vencimento < CURRENT_DATE AND status = 'pendente'), 0)::numeric AS valor_atrasado
+        COALESCE(SUM(valor) FILTER (WHERE ${V} >= ${H} AND ${V} < ${H} + INTERVAL '7 days' AND status = 'pendente'), 0)::numeric AS valor_semana,
+        COALESCE(SUM(valor) FILTER (WHERE ${V} < ${H} AND status = 'pendente'), 0)::numeric AS valor_atrasado
       FROM mrx.mensalidades
     `);
 
