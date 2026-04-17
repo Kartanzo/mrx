@@ -22,7 +22,7 @@ export default function DashboardShell({ userName, userEmail, userPerfil, childr
         collapsed={collapsed}
         onCollapse={setCollapsed}
       />
-      <div className={`transition-all duration-300 ${collapsed ? 'md:pl-0' : 'md:pl-60'}`}>
+      <div className={`transition-all duration-300 ${collapsed ? 'md:pl-16' : 'md:pl-60'}`}>
         <div className="md:hidden h-14" />
         <main className="p-4 md:p-6 min-h-screen">
           {children}
