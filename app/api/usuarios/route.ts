@@ -3,7 +3,11 @@ import pool from '@/lib/db';
 import { hashPassword, normalizeEmail } from '@/lib/auth';
 import { v4 as uuidv4 } from 'uuid';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const perfil = request.headers.get('x-user-perfil');
+  if (perfil !== 'superuser' && perfil !== 'admin') {
+    return NextResponse.json({ error: 'Sem permissão' }, { status: 403 });
+  }
   const result = await pool.query(
     'SELECT id, nome, email, perfil, ativo, criado_em FROM mrx.users ORDER BY criado_em DESC'
   );
@@ -12,6 +16,10 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const perfil = request.headers.get('x-user-perfil');
+    if (perfil !== 'superuser' && perfil !== 'admin') {
+      return NextResponse.json({ error: 'Sem permissão' }, { status: 403 });
+    }
     const body = await request.json();
     const email = normalizeEmail(body.email ?? '');
     const nome = (body.nome ?? '').trim();

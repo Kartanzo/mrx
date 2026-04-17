@@ -2,7 +2,8 @@ import { Client } from 'pg';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 
-const DB_URL = 'postgres://postgres:4E361673219A474A84B16D22B45EB@easypanel.3lackd.com:5433/n8n?sslmode=disable';
+const DB_URL = process.env.DATABASE_URL;
+if (!DB_URL) { console.error('❌ DATABASE_URL não definida'); process.exit(1); }
 
 async function run() {
   const client = new Client({ connectionString: DB_URL });
@@ -43,8 +44,8 @@ async function run() {
   console.log('✅ Tabela mrx.transacoes_status criada');
 
   // 4. Criar superusuário
-  const email = '3lackd@3lackd.com';
-  const senhaPlana = 'Senha123*';
+  const email = process.env.SUPER_EMAIL ?? '3lackd@3lackd.com';
+  const senhaPlana = process.env.SUPER_SENHA ?? 'changeme123';
   const senhaHash = await bcrypt.hash(senhaPlana, 12);
 
   const existente = await client.query('SELECT id FROM mrx.users WHERE email = $1', [email]);
