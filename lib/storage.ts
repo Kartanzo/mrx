@@ -2,7 +2,7 @@ import { createHash } from 'crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync } from 'fs';
 import path from 'path';
 
-const STORAGE_DIR = process.env.STORAGE_PATH || path.join(process.cwd(), 'storage', 'anexos');
+const STORAGE_DIR = process.env.STORAGE_PATH || path.join(/* turbopackIgnore: true */ process.cwd(), 'storage', 'anexos');
 
 // Garante que o diretório existe
 if (!existsSync(STORAGE_DIR)) {

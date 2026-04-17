@@ -16,8 +16,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const perfil = request.headers.get('x-user-perfil');
-    if (perfil !== 'superuser' && perfil !== 'admin') {
+    const userPerfil = request.headers.get('x-user-perfil');
+    if (userPerfil !== 'superuser' && userPerfil !== 'admin') {
       return NextResponse.json({ error: 'Sem permissão' }, { status: 403 });
     }
     const body = await request.json();

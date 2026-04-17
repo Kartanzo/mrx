@@ -14,7 +14,7 @@ export async function GET(
     // 1. Verifica cache local (pula se force=1)
     const cached = !force ? getCachedFile(fileId) : null;
     if (cached) {
-      return new NextResponse(cached.buffer, {
+      return new NextResponse(new Uint8Array(cached.buffer), {
         headers: {
           'Content-Type': cached.contentType,
           'Cache-Control': 'public, max-age=31536000, immutable',
