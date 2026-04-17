@@ -46,12 +46,19 @@ export default function Sidebar({ userName, userPerfil }: Props) {
       {/* Sidebar desktop */}
       <aside className={`hidden md:flex md:flex-col md:fixed md:inset-y-0 z-30 bg-[#0a0c14] border-r border-white/5 transition-all duration-300 ease-out ${collapsed ? 'md:w-0 md:overflow-hidden md:border-r-0' : 'md:w-60'}`}>
         <div className="w-60 flex flex-col h-full">
-          {/* Logo */}
-          <div className="px-4 py-4 border-b border-white/5">
+          {/* Logo + Botão RECOLHER no topo */}
+          <div className="px-3 py-3 border-b border-white/5 flex items-center justify-between gap-2">
             <div className="bg-white rounded-lg px-3 py-2 inline-block">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo.jpeg" alt="MRX" style={{ height: 32, width: 'auto', display: 'block' }} />
             </div>
+            <button
+              onClick={() => setCollapsed(true)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#1E7BC4]/15 border border-[#1E7BC4]/30 text-[#1E7BC4] text-xs font-semibold hover:bg-[#1E7BC4]/25 transition-all"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 19l-7-7 7-7" /></svg>
+              Recolher
+            </button>
           </div>
 
           {/* Nav */}
@@ -66,17 +73,6 @@ export default function Sidebar({ userName, userPerfil }: Props) {
               );
             })}
           </nav>
-
-          {/* Botão RECOLHER — bem visível */}
-          <div className="px-3 py-2">
-            <button
-              onClick={() => setCollapsed(true)}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white/50 text-sm font-medium hover:bg-white/10 hover:text-white transition-all"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7M19 19l-7-7 7-7" /></svg>
-              Recolher Menu
-            </button>
-          </div>
 
           {/* Perfil */}
           <div className="p-3 border-t border-white/5">
@@ -108,7 +104,7 @@ export default function Sidebar({ userName, userPerfil }: Props) {
       {/* ═══════ MOBILE ═══════ */}
 
       {/* Header fixo */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#0a0c14]/95 backdrop-blur-md border-b border-white/5 px-4 py-2.5 flex items-center justify-between" style={{ willChange: 'transform' }}>
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#0a0c14] border-b border-white/5 px-4 py-2.5 flex items-center justify-between">
         <div className="bg-white rounded-lg px-2 py-1">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.jpeg" alt="MRX" style={{ height: 28, width: 'auto', display: 'block' }} />
@@ -130,7 +126,6 @@ export default function Sidebar({ userName, userPerfil }: Props) {
       {/* Drawer */}
       <aside
         className={`md:hidden fixed top-0 left-0 bottom-0 z-[60] w-72 max-w-[85vw] bg-[#0a0c14] border-r border-white/5 shadow-2xl transition-transform duration-300 ease-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
-        style={{ willChange: 'transform' }}
       >
         <div className="flex flex-col h-full">
           <div className="px-4 py-4 border-b border-white/5 flex items-center justify-between">
