@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import { JWTPayload } from '@/types';
 
-const PUBLIC_PATHS = ['/login', '/api/auth/login', '/api/auth/forgot-password'];
+const PUBLIC_PATHS = ['/login', '/api/auth/login', '/api/auth/forgot-password', '/api/health'];
 
 async function verifyTokenEdge(token: string): Promise<JWTPayload | null> {
   try {
