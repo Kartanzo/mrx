@@ -8,12 +8,17 @@ export async function GET() {
   checks.JWT_SECRET = process.env.JWT_SECRET ? 'SET' : 'MISSING';
   checks.TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN ? 'SET' : 'MISSING';
 
-  // 2. DB connection
+  // 2. DB connection + schema check
   try {
     const { Pool } = require('pg');
     const pool = new Pool({ connectionString: process.env.DATABASE_URL, connectionTimeoutMillis: 5000 });
-    const r = await pool.query('SELECT 1 AS ok');
-    checks.db = r.rows[0]?.ok === 1 ? 'OK' : 'FAIL';
+    const dbName = await pool.query('SELECT current_database()');
+    checks.db_name = dbName.rows[0].current_database;
+    const schemas = await pool.query("SELECT schema_name FROM information_schema.schemata WHERE schema_name = 'mrx'");
+    checks.schema_mrx = schemas.rows.length > 0 ? 'EXISTS' : 'MISSING';
+    const tables = await pool.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'mrx' ORDER BY table_name");
+    checks.mrx_tables = tables.rows.map((r: { table_name: string }) => r.table_name).join(', ') || 'NONE';
+    checks.db = 'OK';
     await pool.end();
   } catch (e: unknown) {
     checks.db = `ERROR: ${(e as Error).message}`;
