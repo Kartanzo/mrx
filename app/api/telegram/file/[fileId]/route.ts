@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getCachedFile, saveToCache } from '@/lib/storage';
 
-const TOKEN = process.env.TELEGRAM_BOT_TOKEN!;
+const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
 export async function GET(
   _req: NextRequest,
@@ -8,8 +9,28 @@ export async function GET(
 ) {
   try {
     const { fileId } = await params;
+    const force = _req.nextUrl.searchParams.get('force') === '1';
 
-    // 1. Obter o file_path no Telegram
+    // 1. Verifica cache local (pula se force=1)
+    const cached = !force ? getCachedFile(fileId) : null;
+    if (cached) {
+      return new NextResponse(cached.buffer, {
+        headers: {
+          'Content-Type': cached.contentType,
+          'Cache-Control': 'public, max-age=31536000, immutable',
+          'X-Cache': 'HIT',
+        },
+      });
+    }
+
+    // 2. Sem cache — baixa do Telegram
+    if (!TOKEN) {
+      return NextResponse.json(
+        { error: 'TELEGRAM_BOT_TOKEN não configurado' },
+        { status: 503 }
+      );
+    }
+
     const meta = await fetch(`https://api.telegram.org/bot${TOKEN}/getFile?file_id=${fileId}`);
     const metaJson = await meta.json();
     if (!metaJson.ok) {
@@ -17,21 +38,32 @@ export async function GET(
     }
 
     const filePath: string = metaJson.result.file_path;
+    const ext = filePath.split('.').pop()?.toLowerCase() ?? 'bin';
 
-    // 2. Baixar o arquivo
     const fileRes = await fetch(`https://api.telegram.org/file/bot${TOKEN}/${filePath}`);
     if (!fileRes.ok) {
       return NextResponse.json({ error: 'Erro ao baixar arquivo' }, { status: 502 });
     }
 
-    const contentType = fileRes.headers.get('content-type') ?? 'application/octet-stream';
-    const buffer = await fileRes.arrayBuffer();
+    const buffer = Buffer.from(await fileRes.arrayBuffer());
+
+    // 3. Salva no cache local (não bloqueia a resposta)
+    saveToCache(fileId, buffer, ext);
+
+    const mimeMap: Record<string, string> = {
+      pdf: 'application/pdf',
+      jpg: 'image/jpeg', jpeg: 'image/jpeg',
+      png: 'image/png',
+      gif: 'image/gif',
+      webp: 'image/webp',
+    };
+    const contentType = mimeMap[ext] ?? 'application/octet-stream';
 
     return new NextResponse(buffer, {
-      status: 200,
       headers: {
         'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=86400',
+        'Cache-Control': 'public, max-age=31536000, immutable',
+        'X-Cache': 'MISS',
       },
     });
   } catch (err) {

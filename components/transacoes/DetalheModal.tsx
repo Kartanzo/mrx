@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Save, Check, Clock, Car, FileText, Paperclip, Upload, Trash2, Download, ZoomIn, History } from 'lucide-react';
+import { X, Save, Check, Clock, Car, FileText, Paperclip, Upload, Trash2, Download, ZoomIn, History, RefreshCw } from 'lucide-react';
 import { Transacao, Anexo, brl } from './types';
 
 interface Props {
@@ -20,6 +20,8 @@ export default function DetalheModal({ transacaoId, onClose, onSaved }: Props) {
   const [placasHist, setPlacasHist] = useState<string[]>([]);
   const [loadingPlacas, setLoadingPlacas] = useState(false);
   const [showPlacas, setShowPlacas] = useState(false);
+  const [failedFiles, setFailedFiles] = useState<Set<string>>(new Set());
+  const [retrying, setRetrying] = useState<string | null>(null);
 
   useEffect(() => {
     if (!transacaoId) { setData(null); setAnexos([]); return; }
@@ -51,6 +53,17 @@ export default function DetalheModal({ transacaoId, onClose, onSaved }: Props) {
     setPlacasHist(json.data ?? []);
     setShowPlacas(true);
     setLoadingPlacas(false);
+  };
+
+  const retryFile = async (fileId: string) => {
+    setRetrying(fileId);
+    try {
+      const res = await fetch(`/api/telegram/file/${encodeURIComponent(fileId)}?force=1`);
+      if (res.ok) {
+        setFailedFiles(prev => { const n = new Set(prev); n.delete(fileId); return n; });
+      }
+    } catch { /* ignore */ }
+    setRetrying(null);
   };
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,7 +100,7 @@ export default function DetalheModal({ transacaoId, onClose, onSaved }: Props) {
         className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90"
         onClick={() => setZoom(null)}
       >
-        <img src={zoom} alt="zoom" className="max-w-[95vw] max-h-[95vh] object-contain rounded-lg shadow-2xl" />
+        <img src={zoom} alt="zoom" className="max-w-[90vw] sm:max-w-[95vw] max-h-[90vh] sm:max-h-[95vh] object-contain rounded-lg shadow-2xl" />
         <button onClick={() => setZoom(null)} className="absolute top-4 right-4 text-white/60 hover:text-white">
           <X size={24} />
         </button>
@@ -95,11 +108,11 @@ export default function DetalheModal({ transacaoId, onClose, onSaved }: Props) {
     )}
     /* backdrop */
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
       style={{ background: 'rgba(0,0,0,0.7)' }}
       onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="bg-[#0f1629] border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl">
+      <div className="bg-[#0f1629] border-t sm:border border-white/10 rounded-t-2xl sm:rounded-2xl w-full max-w-lg shadow-2xl max-h-[95vh] flex flex-col">
 
         {/* header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
@@ -287,33 +300,51 @@ export default function DetalheModal({ transacaoId, onClose, onSaved }: Props) {
                 <div className="space-y-2">
                   {anexos.map(a => {
                     const src = `/api/telegram/file/${encodeURIComponent(a.id_anexo)}`;
+                    const failed = failedFiles.has(a.id_anexo);
+                    const isRetrying = retrying === a.id_anexo;
                     return (
                       <div key={a.id_anexo} className="bg-white/5 border border-white/10 rounded-lg overflow-hidden text-xs">
                         <div className="relative group">
-                          <img
-                            src={src}
-                            alt="comprovante Telegram"
-                            onClick={() => setZoom(src)}
-                            className="w-full max-h-64 object-contain bg-black/30 cursor-zoom-in"
-                            onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                          />
-                          <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button
-                              onClick={() => setZoom(src)}
-                              className="bg-black/60 hover:bg-black/80 text-white rounded-full p-1"
-                              title="Zoom"
-                            >
-                              <ZoomIn size={11} />
-                            </button>
-                            <a
-                              href={src}
-                              download={`comprovante_${a.data_hora}`}
-                              className="bg-blue-500/80 hover:bg-blue-500 text-white rounded-full p-1"
-                              title="Baixar"
-                            >
-                              <Download size={11} />
-                            </a>
-                          </div>
+                          {failed ? (
+                            <div className="flex flex-col items-center justify-center gap-3 py-8 bg-black/20">
+                              <div className="text-white/30 text-xs">Arquivo não carregado</div>
+                              <button
+                                onClick={() => retryFile(a.id_anexo)}
+                                disabled={isRetrying}
+                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600/20 border border-blue-500/30 text-blue-400 text-xs font-medium hover:bg-blue-600/30 disabled:opacity-50 transition-all"
+                              >
+                                <RefreshCw size={12} className={isRetrying ? 'animate-spin' : ''} />
+                                {isRetrying ? 'Buscando no Telegram...' : 'Buscar no Telegram'}
+                              </button>
+                            </div>
+                          ) : (
+                            <>
+                              <img
+                                src={src}
+                                alt="comprovante Telegram"
+                                onClick={() => setZoom(src)}
+                                className="w-full max-h-64 object-contain bg-black/30 cursor-zoom-in"
+                                onError={() => setFailedFiles(prev => new Set(prev).add(a.id_anexo))}
+                              />
+                              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                  onClick={() => setZoom(src)}
+                                  className="bg-black/60 hover:bg-black/80 text-white rounded-full p-1"
+                                  title="Zoom"
+                                >
+                                  <ZoomIn size={11} />
+                                </button>
+                                <a
+                                  href={src}
+                                  download={`comprovante_${a.data_hora}`}
+                                  className="bg-blue-500/80 hover:bg-blue-500 text-white rounded-full p-1"
+                                  title="Baixar"
+                                >
+                                  <Download size={11} />
+                                </a>
+                              </div>
+                            </>
+                          )}
                         </div>
                         <div className="px-4 py-2">
                           <div className="flex justify-between text-white/30">

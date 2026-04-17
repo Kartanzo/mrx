@@ -18,12 +18,18 @@ export async function buscarEnvolvidos(q: string) {
 /** Todas as transações de um envolvido, ordenadas por data */
 export async function transacoesPorEnvolvido(envolvido: string) {
   const { rows } = await pool.query(
-    `SELECT id, data, descricao, valor, tipo_de_movimento,
-            envolvido, descricao_extra, chave_matching,
-            placa, aprovado, aprovado_em, comprovante
-     FROM ${S}.transacoes
-     WHERE envolvido = $1
-     ORDER BY data DESC`,
+    `SELECT t.id, t.data, t.descricao, t.valor, t.tipo_de_movimento,
+            t.envolvido, t.descricao_extra, t.chave_matching,
+            t.placa, t.aprovado, t.aprovado_em, t.comprovante,
+            EXISTS (
+              SELECT 1 FROM ${S}.anexos a
+              WHERE a.id_anexo = t.chave_matching
+                 OR (a.id_cliente ILIKE '%' || REPLACE(t.envolvido, ' ', '%') || '%'
+                     AND a.valor = t.valor::text)
+            ) AS tem_anexo
+     FROM ${S}.transacoes t
+     WHERE t.envolvido = $1
+     ORDER BY t.data DESC`,
     [envolvido]
   );
   return rows;
